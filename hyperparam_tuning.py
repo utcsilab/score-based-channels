@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct  5 13:11:47 2021
-
-@author: yanni
-"""
 
 import numpy as np
 import torch, sys, os, itertools, copy, argparse
