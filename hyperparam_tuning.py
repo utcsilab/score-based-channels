@@ -79,8 +79,8 @@ best_idx        = np.argmin(np.abs(step_criterion - 1.))
 fixed_step_size = candidate_steps[best_idx]
 
 # Range of SNR, test channels and hyper-parameters
-snr_range          = np.asarray([15])
-step_factor_range  = np.asarray([1.]) # Multiplicative
+snr_range          = np.arange(-10, 17.5, 2.5)
+step_factor_range  = np.asarray([0.03, 0.1, 0.3, 1.]) # Multiplicative
 spacing_range      = np.asarray(args.spacing) # From a pre-defined index
 pilot_alpha_range  = np.asarray(args.pilot_alpha)
 noise_range        = 10 ** (-snr_range / 10.)
