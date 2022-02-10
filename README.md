@@ -8,3 +8,15 @@ Generic flow:
 4. Use 'inference.py' to perform inference.
 
 Full credits for the ncsnv2 repository go to: https://github.com/utcsilab/diffusion-channels/tree/main/ncsnv2
+
+# Citation
+Please include the following citation when using or referencing this codebase:
+
+```
+@article{arvinte2021deep,
+  title={Deep Diffusion Models for Robust Channel Estimation},
+  author={Arvinte, Marius and Tamir, Jonathan I},
+  journal={arXiv preprint arXiv:2111.08177},
+  year={2021}
+}
+```
