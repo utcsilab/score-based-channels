@@ -17,7 +17,7 @@ Generic flow:
 - Complete code for extensive baselines.
 - Support for saving the channels to a file, and adding a .mat script that runs end-to-end simulations with the estimated channels (for a quick solution: look into the ```pymatbridge``` Python package which allows for Matlab engine calls from Python).
 
-Full credits for the ncsnv2 repository go to: https://github.com/utcsilab/diffusion-channels/tree/main/ncsnv2
+Full credits for the ncsnv2 repository go to: https://github.com/ermongroup/ncsnv2
 
 # Citation
 Please include the following citation when using or referencing this codebase:
