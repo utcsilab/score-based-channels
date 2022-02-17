@@ -1,9 +1,9 @@
-# diffusion-channels
-Source code for paper "Deep Diffusion Models for Robust Channel Estimation".
+# score-based-channels
+Source code for paper "Score-Based Generative Models for Robust Channel Estimation".
 
 Generic flow:
 1. Use 'matlab/main.m' to generate training, validation and test channels.
-2. Use 'train.py' to train a deep diffusion model for channel estimation with the default parameters used in the paper.
+2. Use 'train.py' to train a deep score-based model for channel estimation with the default parameters used in the paper.
 3. Use 'hyperparam_tuning.py' to find 'beta' and 'N', exactly like in the paper.
 
 3.1. The script will contain a saved variable ```oracle_log```, which contains the NMSE with respect to the ground truth channels, for all the hyper-parameters, noise levels, and each invididual sample.
@@ -24,7 +24,7 @@ Please include the following citation when using or referencing this codebase:
 
 ```
 @article{arvinte2021deep,
-  title={Deep Diffusion Models for Robust Channel Estimation},
+  title={Score-Based Generative Models for Robust Channel Estimation},
   author={Arvinte, Marius and Tamir, Jonathan I},
   journal={arXiv preprint arXiv:2111.08177},
   year={2021}
