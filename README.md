@@ -17,9 +17,9 @@ Generic flow:
 # TODO
 - Complete code for extensive baselines.
 
+# Citations
 Full credits for the ncsnv2 repository go to: https://github.com/ermongroup/ncsnv2
 
-# Citation
 Please include the following citation when using or referencing this codebase:
 
 ```
