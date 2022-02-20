@@ -2,12 +2,14 @@ clc, clear, close all
 
 % Scenario !!! Must match estimation
 channel_snr_range = -10:2.5:15;
-precoding_offset  = 20;
+precoding_offset  = 20; % Data transmission is dampened by this much
 snr_range         = (-10:0.5:2) - precoding_offset;
 num_packets       = 100000;
 
 % Load some channels
-target_channels = 'l1_known';
+target_channels = 'ours_known';
+
+% Load from pre-saved files
 if strcmp(target_channels, 'l1_unknown')
     target_file  = '../results_l1_saved_channels_seed9999/CDL-C_spacing0.50/l1_results_lmbda3.00e-02.mat';
     boost_factor = 1; % To match variance scaling!
@@ -62,7 +64,7 @@ num_rx = size(real_channels, 1);
     num_streams, num_packets, snr_range, run_ideal);
 
 % Save to file
-save(sprintf('./revised_e2e_results_HUGE/%s_alpha%.2f.mat', ...
+save(sprintf('./e2e_results/%s_alpha%.2f.mat', ...
     target_channels, alpha_array(target_alpha)), 'bler_ideal', 'ber_ideal', ...
     'bler_est', 'ber_est', 'target_alpha', 'snr_range', 'alpha_array', ...
     'precoding_offset');
