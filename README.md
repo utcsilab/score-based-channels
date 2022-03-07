@@ -16,6 +16,8 @@ Generic flow:
 
 # TODO
 - Complete code for extensive baselines.
+- Pre-generate data to remove dependency on Matlab NR Toolbox.
+- (Hard) Completely remove dependency on Matlab.
 
 # Citations
 Full credits for the ncsnv2 repository go to: https://github.com/ermongroup/ncsnv2
