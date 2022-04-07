@@ -197,5 +197,5 @@ for meta_idx, (spacing, pilot_alpha, step_factor) in tqdm(enumerate(meta_params)
 
 # Squeeze
 oracle_log = np.squeeze(oracle_log)
-# Plot
-plt.figure(); plt.plot(10*np.log10(np.mean(oracle_log, axis=-1))); plt.show()
+# Plot at best stopping point and step factor value
+plt.figure(); plt.plot(10*np.log10(np.min(np.mean(np.squeeze(oracle_log), axis=-1), axis=(-1, -3)))); plt.show()
