@@ -179,7 +179,7 @@ for meta_idx, (spacing, pilot_alpha, step_factor) in tqdm(enumerate(meta_params)
                     # Apply update
                     current = current + \
                         score_boost * alpha * score - \
-                            dc_boost * alpha / current_sigma ** 2 * \
+                            dc_boost * alpha / (local_noise/2. + current_sigma ** 2) * \
                         meas_grad + grad_noise
                     
                     # Store loss
