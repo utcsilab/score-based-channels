@@ -206,7 +206,7 @@ for meta_idx, (spacing, pilot_alpha, step_factor) in tqdm(enumerate(meta_params)
                     # Apply update
                     current = current + \
                         alpha * (score - meas_grad /\
-                                 (0 ** 2 + current_sigma ** 2)) + grad_noise
+                                 (local_noise/2. + current_sigma ** 2)) + grad_noise
                             
                     # Store loss
                     oracle_log[
