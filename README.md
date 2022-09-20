@@ -1,5 +1,5 @@
 # score-based-channels
-Source code for paper "Score-Based Generative Models for Robust Channel Estimation".
+Source code for estimating MIMO channels using score-based (diffusion) models. See citations for paper references.
 
 Generic flow:
 1. Use ```matlab/main.m``` to generate training, validation and test channels.
