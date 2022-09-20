@@ -22,13 +22,29 @@ Generic flow:
 # Citations
 Full credits for the ncsnv2 repository go to: https://github.com/ermongroup/ncsnv2
 
-Please include the following citation when using or referencing this codebase:
+Please include the following citations when using or referencing this codebase:
 
 ```
-@article{arvinte2021deep,
+@article{arvinte2022mimo,
+  title={MIMO Channel Estimation using Score-Based Generative Models},
+  author={Arvinte, Marius and Tamir, Jonathan I},
+  journal={arXiv preprint arXiv:2204.07122},
+  year={2022}
+}
+
+@inproceedings{arvinte2022score1,
+  title={Score-Based Generative Models for Wireless Channel Modeling and Estimation},
+  author={Arvinte, Marius and Tamir, Jonathan},
+  booktitle={ICLR Workshop on Deep Generative Models for Highly Structured Data},
+  year={2022}
+}
+
+@inproceedings{arvinte2022score2,
   title={Score-Based Generative Models for Robust Channel Estimation},
   author={Arvinte, Marius and Tamir, Jonathan I},
-  journal={arXiv preprint arXiv:2111.08177},
-  year={2021}
+  booktitle={2022 IEEE Wireless Communications and Networking Conference (WCNC)},
+  pages={453--458},
+  year={2022},
+  organization={IEEE}
 }
 ```
