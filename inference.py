@@ -16,9 +16,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0)
 parser.add_argument('--channel', type=str, default='CDL-D')
 parser.add_argument('--save_channels', type=int, default=0)
-parser.add_argument('--spacing', nargs='+', type=float, default=[0.1])
-parser.add_argument('--pilot_alpha', nargs='+', type=float, default=[0.2])
-parser.add_argument('--noise_boost', type=float, default=1.)
+parser.add_argument('--spacing', nargs='+', type=float, default=[0.5])
+parser.add_argument('--pilot_alpha', nargs='+', type=float, default=[0.6])
+parser.add_argument('--noise_boost', type=float, default=0.001)
 args = parser.parse_args()
 
 # Always !!!
