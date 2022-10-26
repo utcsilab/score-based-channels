@@ -2,7 +2,7 @@
 Source code for estimating MIMO channels using score-based (diffusion) models. See citations for paper references.
 
 Generic flow:
-1. Use ```matlab/main.m``` to generate training, validation and test channels. Alternatively, you can download a set of pre-generated train, validation and test (seeds 1234, 4321, and 9999 respectively) CDL-D channels from here: https://www.dropbox.com/sh/rcfyde3ccaf3jqd/AABWo7-2DUAhv4EdtWwD-J9Ga?dl=0. These were generated using the Matlab code in this repository. 
+1. Use ```matlab/main.m``` to generate training, validation and test channels. Alternatively, you can download a set of pre-generated train, validation and test channels (seeds 1234, 4321, and 9999 respectively) CDL-D channels from here: https://www.dropbox.com/sh/rcfyde3ccaf3jqd/AABWo7-2DUAhv4EdtWwD-J9Ga?dl=0. These were generated using the Matlab code in this repository. Place these channels in a newly created ```data``` directory.
 2. Use ```train.py``` to train a deep score-based model for channel estimation with the default parameters used in the paper.
 3. Use ```hyperparam_tuning.py``` to find ```beta``` and ```N```, exactly like in the paper.
 
