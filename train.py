@@ -67,7 +67,7 @@ config.data.noise_std      = 0.01 # 'Beta' in paper
 config.data.image_size     = [16, 64] # Channel size = Nr x Nt
 config.data.mixed_channels = False
 config.data.norm_channels  = 'global' # Optional, no major impact
-config.data.spacing_list   = [0.1, 0.5] # Training and validation
+config.data.spacing_list   = [0.5] # Training and validation
 
 # Universal seeds
 train_seed, val_seed = 1234, 4321
