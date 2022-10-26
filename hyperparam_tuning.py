@@ -41,7 +41,7 @@ device   = torch.device('cuda:0')
 # target_weights = './\
 # models_oct12_VarScaling/sigmaT39.1/intermediate_model.pt'
 target_weights = './models_oct14/\
-numLambdas2_lambdaMin0.1_lambdaMax0.5_sigmaT39.1/final_model.pt'
+numLambdas2_lambdaMin0.5_lambdaMax0.5_sigmaT39.1/final_model.pt'
 contents = torch.load(target_weights, map_location=device)
 # Extract config
 config = contents['config']
