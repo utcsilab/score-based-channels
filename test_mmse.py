@@ -175,7 +175,7 @@ for meta_idx, (spacing, pilot_alpha) in \
         # Generate measurements ad-hoc
         local_Y   = torch.matmul(val_P, val_H)
         local_Y   = local_Y + \
-            np.sqrt(local_noise) / np.sqrt(2.) * torch.randn_like(local_Y)
+            np.sqrt(local_noise) * torch.randn_like(local_Y)
         
         # For each sample, add exact copies to collections
         for sample_idx in range(len(val_H)):
