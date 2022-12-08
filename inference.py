@@ -157,7 +157,7 @@ for meta_idx, (spacing, pilot_alpha, step_factor) in tqdm(enumerate(meta_params)
         
         val_Y     = torch.matmul(val_P, val_H)
         val_Y     = val_Y + \
-            np.sqrt(local_noise) / np.sqrt(2.) * torch.randn_like(val_Y) 
+            np.sqrt(local_noise) * torch.randn_like(val_Y) 
         current   = init_val_H.clone()
         y         = val_Y
         forward   = val_P
