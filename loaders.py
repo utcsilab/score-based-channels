@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct  5 13:51:16 2021
-
-@author: yanni
-"""
 
 import torch, hdf5storage
 from torch.utils.data import Dataset
@@ -25,12 +20,8 @@ class Channels(Dataset):
         # For each spacing
         for spacing in target_spacings:
             # Get local filename
-            if target_channel == 'CDL-D':
-                filename = './data/%s_Nt64_Nr16_ULA%.1f_seed%d.mat' % (
-                    target_channel, spacing, seed)
-            else:
-                filename = './data/%s_Nt64_Nr16_ULA%.2f_seed%d.mat' % (
-                    target_channel, spacing, seed)
+            filename = './data/%s_Nt64_Nr16_ULA%.2f_seed%d.mat' % (
+                target_channel, spacing, seed)
             # Log
             self.filenames.append(filename)
         
@@ -38,7 +29,7 @@ class Channels(Dataset):
             contents = hdf5storage.loadmat(filename)
             channels = np.asarray(contents['output_h'], dtype=np.complex64)
         
-            # For now, only pick first subcarrier/symbol content
+            # Use only first subcarrier of the first symbol
             if config.data.mixed_channels:
                 self.channels.append(channels.reshape(
                     -1, channels.shape[-2], channels.shape[-1]))
@@ -69,7 +60,7 @@ class Channels(Dataset):
             
         # Complex noise power
         self.noise_power = 1/np.sqrt(2) * config.data.noise_std
-        
+            
     def __len__(self):
         return len(self.channels)
 
@@ -91,16 +82,30 @@ class Channels(Dataset):
         N = self.noise_power * (np.random.normal(size=Y.shape) + \
                                 1j * np.random.normal(size=Y.shape))
         Y = Y + N
-
+        
+        # Compute largest eigenvalue of normal operator
+        eigvals = np.real(
+            np.linalg.eigvals(np.matmul(
+                P, np.conj(P.T))))
+        
         # Also get Hermitian H, real-viewed
+        H_herm      = np.conj(np.transpose(H_cplx))
         H_herm_norm = np.conj(np.transpose(H_cplx_norm))
         H_real_herm_norm = \
             np.stack((np.real(H_herm_norm), np.imag(H_herm_norm)), axis=0)
 
+        # And more Hermitians
+        P_herm = np.conj(np.transpose(P))
+        Y_herm = np.conj(np.transpose(Y))
+
         sample = {'H': H_real_norm.astype(np.float32),
                   'H_herm': H_real_herm_norm.astype(np.float32),
+                  'H_herm_cplx': H_herm.astype(np.complex64),
                   'P': self.pilots[idx].astype(np.complex64),
+                  'P_herm': P_herm.astype(np.complex64),
                   'Y': Y.astype(np.complex64),
-                  'sigma_n': self.noise_power.astype(np.float32)}
-
+                  'Y_herm': Y_herm.astype(np.complex64),
+                  'eig1': eigvals[0].astype(np.float32),
+                  'sigma_n': self.noise_power.astype(np.float32),
+                  'idx': int(idx)}
         return sample
