@@ -17,6 +17,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0)
 parser.add_argument('--channel', type=str, default='CDL-C')
 parser.add_argument('--spacing', type=float, default=0.5)
+parser.add_argument('--alpha_step_range', nargs='+', type=float,
+                    default=[3e-11, 6e-11, 1e-10, 3e-10])
+parser.add_argument('--beta_noise_range', nargs='+', type=float,
+                    default=[0.1, 0.01, 0.001])
 parser.add_argument('--pilot_alpha', type=float, default=0.6)
 args = parser.parse_args()
 
@@ -49,8 +53,8 @@ dataset = Channels(train_seed, config, norm=config.data.norm_channels)
 
 # Range of SNR, test channels and hyper-parameters
 snr_range          = np.arange(-10, 32.5, 2.5)
-alpha_step_range   = np.asarray([3e-11, 6e-11, 1e-10, 3e-10])
-beta_noise_range   = np.asarray([0.1, 0.01, 0.001])
+alpha_step_range   = np.asarray(args.alpha_step_range)
+beta_noise_range   = np.asarray(args.beta_noise_range)
 noise_range        = 10 ** (-snr_range / 10.) * config.data.image_size[1]
 
 # Global results
