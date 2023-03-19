@@ -33,7 +33,7 @@ for local_spacing = spacing_array
         [cdl, output_h] = genChannels(num_channels, Nt, Nr, hparams, global_seed);
 
         % Save to file
-        filename = sprintf('../data_mixed/%s_Nt%d_Nr%d_ULA%.2f_seed%d.mat', ...
+        filename = sprintf('../data/%s_Nt%d_Nr%d_ULA%.2f_seed%d.mat', ...
             hparams.DelayProfile, Nt, Nr, hparams.TxSpacing, global_seed);
         save(filename, 'output_h', 'hparams', '-v7.3');
     end
