@@ -29,10 +29,10 @@ torch.backends.cudnn.benchmark        = True
 os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
-# Train and test model and channels
+# Model backbone
 train_backbone = 'FlippedUNet'
 
-# Meta-configs
+# Channel antenna spacing and pilot alpha
 spacing_range     = [0.5]
 pilot_alpha_range = [0.6]
 snr_range         = args.snr_range
@@ -43,8 +43,8 @@ train_seed, test_seed = 1234, 4321
 # Wrap spacing, sparsity and SNR
 meta_params = itertools.product(spacing_range, pilot_alpha_range, snr_range)
 
-# Number of test channels and result logging
-num_channels = 100 # For testing
+# Number of validation channels and result logging
+num_channels = 100
 nmse_log     = np.zeros((len(spacing_range), len(pilot_alpha_range),
                          len(snr_range), num_channels))
 # Result directory
@@ -98,19 +98,15 @@ for meta_idx, (spacing, pilot_alpha, snr) in tqdm(enumerate(meta_params)):
         for key in sample.keys():
             sample[key] = sample[key].cuda()
         
-        # Get ground truth
-        val_H_herm = sample['H_herm']
-        val_H      = val_H_herm[:, 0] + 1j * val_H_herm[:, 1]
-        
         # Estimate channels
         with torch.no_grad():
             H_est = model(sample, config.model.max_unrolls)
 
             # Compute NMSE
             nmse_loss = \
-                torch.sum(torch.square(torch.abs(H_est - val_H)),
+                torch.sum(torch.square(torch.abs(H_est - sample['H_herm_cplx'])),
                           dim=(-1, -2))/\
-                torch.sum(torch.square(torch.abs(val_H)), 
+                torch.sum(torch.square(torch.abs(sample['H_herm_cplx'])), 
                           dim=(-1, -2))
         
         # Store NMSE for each channel instance
@@ -119,6 +115,14 @@ for meta_idx, (spacing, pilot_alpha, snr) in tqdm(enumerate(meta_params)):
                 
 # Get average NMSE
 avg_nmse = np.mean(nmse_log, axis=-1)
+# For each alpha and SNR value
+for alpha_idx, local_alpha in enumerate(pilot_alpha_range):
+    for snr_idx, local_snr in enumerate(snr_range):
+        local_nmse = avg_nmse[0, alpha_idx, snr_idx]
+        # Print result
+        print('Learned D-AMP: SNR = %.2f dB, NMSE = %.2f dB' % (
+            local_snr, 10*np.log10(local_nmse)))
+
 # Plot results for all alpha values
 plt.rcParams['font.size'] = 14
 plt.figure(figsize=(10, 10))
