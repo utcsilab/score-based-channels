@@ -48,7 +48,7 @@ num_channels = 100 # For testing
 nmse_log     = np.zeros((len(spacing_range), len(pilot_alpha_range),
                          len(snr_range), num_channels))
 # Result directory
-result_dir = './results/ldamp_train-%s_test-%s' % (
+result_dir = './results/ldamp/train-%s_test-%s' % (
     args.train, args.test)
 os.makedirs(result_dir, exist_ok=True)
 

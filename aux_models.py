@@ -152,8 +152,7 @@ class LDAMP(nn.Module):
                 
                 # Travel a small amount
                 eps = torch.maximum(torch.amax(torch.abs(r), dim=(-1, -2),
-                                              keepdim=False) * 1e-3,
-                    self.safety_min)
+                                  keepdim=False) * 1e-3, self.safety_min)
                 if self.logging:
                     eps_log.append(copy.deepcopy(eps.cpu().detach().numpy()))
                 

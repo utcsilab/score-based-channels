@@ -79,7 +79,7 @@ nmse_log     = np.zeros((len(spacing_range), len(alpha_range),
 complete_log = np.zeros((len(spacing_range), len(alpha_range),
                          len(lmbda_range), len(lr_range),
                          len(snr_range), gd_iter, kept_samples)) 
-result_dir = './results/l1_baseline_lifted%d/train-%s_test-%s' % (
+result_dir = './results/l1CS_lifted%d/train-%s_test-%s' % (
     lifting, args.train, args.test)
 os.makedirs(result_dir, exist_ok=True)
     
