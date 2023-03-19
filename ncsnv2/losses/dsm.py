@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import torch
 
 def anneal_dsm_score_estimation(scorenet, samples, sigmas,
-                                labels=None, anneal_power=2., hook=None):
+                                labels=None, anneal_power=2.):
     # This always enters during training
     if labels is None:
         # Randomly sample sigma
@@ -26,8 +29,5 @@ def anneal_dsm_score_estimation(scorenet, samples, sigmas,
     # Multiply each sample by its weight
     loss = 1 / 2. * ((scores - target) ** 2).sum(
         dim=-1) * used_sigmas.squeeze() ** anneal_power
-
-    if hook is not None:
-        hook(loss, labels)
 
     return loss.mean(dim=0)

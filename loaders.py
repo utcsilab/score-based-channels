@@ -29,12 +29,8 @@ class Channels(Dataset):
             contents = hdf5storage.loadmat(filename)
             channels = np.asarray(contents['output_h'], dtype=np.complex64)
         
-            # Use only first subcarrier of the first symbol
-            if config.data.mixed_channels:
-                self.channels.append(channels.reshape(
-                    -1, channels.shape[-2], channels.shape[-1]))
-            else:
-                self.channels.append(channels[:, 0])
+            # Use only first subcarrier of each symbol
+            self.channels.append(channels[:, 0])
                 
         # Convert to array
         self.channels = np.asarray(self.channels)
