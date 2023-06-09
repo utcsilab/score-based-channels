@@ -52,6 +52,8 @@ elif args.train == 'CDL-D':
 elif args.train == 'Mixed':
     alpha_step = 3e-11
     beta_noise = 0.01
+# Number of Langevin steps at each noise level
+config.sampling.steps_each = 3
 
 # Instantiate model
 diffuser = NCSNv2Deepest(config)
@@ -102,11 +104,10 @@ for meta_idx, (spacing, pilot_alpha) in tqdm(enumerate(meta_params)):
     val_iter = iter(val_loader)
     print('There are %d validation channels' % len(val_dataset))
         
-    # Get all validation data explicitly
+    # Get all validation pilots and channels
     val_sample = next(val_iter)
-    _, val_P, _ = \
-        val_sample['H'].cuda(), val_sample['P'].cuda(), val_sample['Y'].cuda()
-    # Transposed pilots
+    val_P = val_sample['P'].cuda()
+    # Hermitian pilots
     val_P = torch.conj(torch.transpose(val_P, -1, -2))
     val_H_herm = val_sample['H_herm'].cuda()
     val_H = val_H_herm[:, 0] + 1j * val_H_herm[:, 1]
@@ -115,6 +116,7 @@ for meta_idx, (spacing, pilot_alpha) in tqdm(enumerate(meta_params)):
     
     # For each SNR value
     for snr_idx, local_noise in tqdm(enumerate(noise_range)):
+        # Get received pilots at correct SNR
         val_Y     = torch.matmul(val_P, val_H)
         val_Y     = val_Y + \
             np.sqrt(local_noise) * torch.randn_like(val_Y) 
