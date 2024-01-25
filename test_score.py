@@ -117,9 +117,12 @@ for meta_idx, (spacing, pilot_alpha) in tqdm(enumerate(meta_params)):
     # For each SNR value
     for snr_idx, local_noise in tqdm(enumerate(noise_range)):
         # Get received pilots at correct SNR
+        # We directly sample unit power complex-valued tensors via torch.randn_like
+        # This is correct but partially undocumented as of PyTorch 2.1 - see https://github.com/pytorch/pytorch/issues/118269 for details
         val_Y     = torch.matmul(val_P, val_H)
         val_Y     = val_Y + \
-            np.sqrt(local_noise) * torch.randn_like(val_Y) 
+            np.sqrt(local_noise) * torch.randn_like(val_Y)
+        
         current   = init_val_H.clone()
         y         = val_Y
         forward   = val_P
