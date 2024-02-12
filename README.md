@@ -71,11 +71,11 @@ Please include the following citation when using or referencing this codebase:
 @ARTICLE{9957135,
   author={Arvinte, Marius and Tamir, Jonathan I.},
   journal={IEEE Transactions on Wireless Communications}, 
-  title={MIMO Channel Estimation using Score-Based Generative Models}, 
-  year={2022},
-  volume={},
-  number={},
-  pages={1-1},
+  title={MIMO Channel Estimation Using Score-Based Generative Models}, 
+  year={2023},
+  volume={22},
+  number={6},
+  pages={3698-3713},
   doi={10.1109/TWC.2022.3220784}}
 ```
 
