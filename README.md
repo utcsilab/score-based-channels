@@ -31,7 +31,7 @@ Once downloaded, place these files in the `data` folder under the main directory
 ### Pre-trained Models
 A pre-trained diffusion model for CDL-C channels can be directly downloaded from the command line using the following:
 ```
-mkdir models/score/CDL-C
+mkdir -p models/score/CDL-C
 curl -L https://utexas.box.com/shared/static/4nubcpvpuv3gkzfk8dgjo6ay0ssps66w.pt --output ./models/score/CDL-C/final_model.pt
 ```
 
