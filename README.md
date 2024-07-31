@@ -2,8 +2,17 @@
 
 This repository contains source code for [MIMO Channel Estimation using Score-Based Generative Models](https://arxiv.org/abs/2204.07122), and contains code for training and testing a score-based generative model on channels from the Clustered Delay Line (CDL) family of models, as well as other algorithms.
 
+## Requirements
+Python 3.8, 3.9, or 3.10. Tested on Ubuntu 20.04 and 22.04. MATLAB license required to run MATLAB scripts.
+
 ## Getting Started
-After cloning the repository, in a clean Python environment run `pip install -r requirements.txt`.
+After cloning the repository, run the following commands for Python 3.10 (similar for other versions of Python):
+- `cd score-based-channels`
+- `python3.10 -m venv .venv`
+- `source .venv/bin/activate`
+- `pip install -r requirements.txt`
+
+This will create a self-contained virtual environment in the base directory, activate it, and install all required packages.
 
 ### Pre-generated Data
 Train and validation data for CDL-C channels can be directly downloaded from the command line using the following:
