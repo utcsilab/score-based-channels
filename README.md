@@ -1,5 +1,8 @@
 # MIMO Channel Estimation using Score-Based (Diffusion) Generative Models
 
+[![IEEE Xplore](https://img.shields.io/badge/IEEE-TWC-00629B.svg)](https://ieeexplore.ieee.org/abstract/document/9957135)
+[![arXiv](https://img.shields.io/badge/arXiv-2204.07122-b31b1b.svg)](https://arxiv.org/abs/2204.07122)
+
 This repository contains source code for [MIMO Channel Estimation using Score-Based Generative Models](https://arxiv.org/abs/2204.07122), and contains code for training and testing a score-based generative model on channels from the Clustered Delay Line (CDL) family of models, as well as other algorithms.
 
 ## Requirements
