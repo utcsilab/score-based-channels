@@ -3,7 +3,7 @@
 This repository contains source code for [MIMO Channel Estimation using Score-Based Generative Models](https://arxiv.org/abs/2204.07122), and contains code for training and testing a score-based generative model on channels from the Clustered Delay Line (CDL) family of models, as well as other algorithms.
 
 ## Requirements
-Python 3.8, 3.9, or 3.10. Tested on Ubuntu 20.04 and 22.04. MATLAB license required to run MATLAB scripts.
+Python 3.10, 3.11, and 3.12 with virtual environment support `sudo apt install python3.1X-venv`. Tested on Ubuntu 20.04 and 22.04. MATLAB license required to run MATLAB scripts.
 
 ## Getting Started
 After cloning the repository, run the following commands for Python 3.10 (similar for other versions of Python):
