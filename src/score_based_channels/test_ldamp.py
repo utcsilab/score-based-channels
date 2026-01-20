@@ -6,10 +6,10 @@ sys.path.append('..')
 import numpy as np
 
 import torch
-from aux_models import LDAMP
+from .aux_models import LDAMP
 from tqdm import tqdm
 
-from loaders          import Channels
+from .loaders          import Channels
 from torch.utils.data import DataLoader
 from matplotlib       import pyplot as plt
 

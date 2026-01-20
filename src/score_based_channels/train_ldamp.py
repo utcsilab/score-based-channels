@@ -8,11 +8,11 @@ import numpy as np
 import torch
 from torch.optim.lr_scheduler import StepLR
 
-from aux_models import LDAMP
+from .aux_models import LDAMP
 from dotmap import DotMap
 from tqdm import tqdm
 
-from loaders          import Channels
+from .loaders          import Channels
 from torch.utils.data import DataLoader
 import argparse
 
@@ -50,7 +50,7 @@ for noise_idx, train_snr in enumerate(args.snr_range):
     config.optim.lr              = 1e-3
     # Training
     config.training.batch_size   = 128
-    config.training.num_workers  = 2
+    config.training.num_workers  = 2 if os.name == "posix" else 0
     config.training.n_epochs     = 24
     config.training.decay_epochs = 16
     config.training.decay_gamma  = 0.1

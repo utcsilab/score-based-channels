@@ -7,21 +7,18 @@ sys.path.append('./')
 
 from tqdm import tqdm as tqdm
 from ncsnv2.models.ncsnv2 import NCSNv2Deepest
-
-from loaders          import Channels
-from torch.utils.data import DataLoader
+from .loaders              import Channels
+from torch.utils.data     import DataLoader
 from matplotlib import pyplot as plt
 
 # Args
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0)
-parser.add_argument('--channel', type=str, default='CDL-C')
-parser.add_argument('--spacing', type=float, default=0.5)
-parser.add_argument('--alpha_step_range', nargs='+', type=float,
-                    default=[3e-11, 6e-11, 1e-10, 3e-10])
-parser.add_argument('--beta_noise_range', nargs='+', type=float,
-                    default=[0.1, 0.01, 0.001])
-parser.add_argument('--pilot_alpha', type=float, default=0.6)
+parser.add_argument('--train', type=str, default='CDL-C')
+parser.add_argument('--test', type=str, default='CDL-C')
+parser.add_argument('--save_channels', type=int, default=0)
+parser.add_argument('--spacing', nargs='+', type=float, default=[0.5])
+parser.add_argument('--pilot_alpha', nargs='+', type=float, default=[0.6])
 args = parser.parse_args()
 
 # Disable TF32 due to potential precision issues
@@ -33,10 +30,30 @@ os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
 # Target file
-target_dir  = './models/score/%s' % args.channel
+target_dir  = './models/score/%s' % args.train
 target_file = os.path.join(target_dir, 'final_model.pt')
 contents    = torch.load(target_file)
 config      = contents['config']
+
+# Default hyper-parameters for pilot_alpha = 0.6, all SNR points
+if args.train == 'CDL-A':
+    # !!! Not to be confused with 'pilot_alpha' that denotes fraction of pilots
+    alpha_step = 3e-11 # 'alpha' in paper Algorithm 1
+    beta_noise = 0.01  # 'beta' in paper Algorithm 1
+elif args.train == 'CDL-B':
+    alpha_step = 3e-11
+    beta_noise = 0.01
+elif args.train == 'CDL-C':
+    alpha_step = 3e-11
+    beta_noise = 0.01
+elif args.train == 'CDL-D':
+    alpha_step = 3e-11
+    beta_noise = 0.01
+elif args.train == 'Mixed':
+    alpha_step = 3e-11
+    beta_noise = 0.01
+# Number of Langevin steps at each noise level
+config.sampling.steps_each = 3
 
 # Instantiate model
 diffuser = NCSNv2Deepest(config)
@@ -48,48 +65,49 @@ diffuser.eval()
 # Train and validation seeds
 train_seed, val_seed = 1234, 4321
 # Get training dataset for normalization
-config.data.channel = args.channel
+config.data.channel = args.train
 dataset = Channels(train_seed, config, norm=config.data.norm_channels)
 
 # Range of SNR, test channels and hyper-parameters
 snr_range          = np.arange(-10, 32.5, 2.5)
-alpha_step_range   = np.asarray(args.alpha_step_range)
-beta_noise_range   = np.asarray(args.beta_noise_range)
+spacing_range      = np.asarray(args.spacing) # From a pre-defined index
+pilot_alpha_range  = np.asarray(args.pilot_alpha)
 noise_range        = 10 ** (-snr_range / 10.) * config.data.image_size[1]
-
-# Global results
-nmse_log = np.zeros((len(alpha_step_range), len(beta_noise_range), len(snr_range),
-                     int(config.model.num_classes * config.sampling.steps_each),
-                     100)) # Should match data
-result_dir = './results/score'
-os.makedirs(result_dir, exist_ok=True)
+# Number of validation channels
+num_channels = 100
     
-# Wrap hyper-parameters
-meta_params = itertools.product(alpha_step_range, beta_noise_range)
+# Global results
+nmse_log = np.zeros((len(spacing_range), len(pilot_alpha_range),
+                     len(snr_range), int(config.model.num_classes * \
+                   config.sampling.steps_each), num_channels))
+result_dir = './results/score/train-%s_test-%s' % (
+    args.train, args.test)
+os.makedirs(result_dir, exist_ok=True)
+
+# Wrap sparsity, steps and spacings
+meta_params = itertools.product(spacing_range, pilot_alpha_range)
 
 # For each hyper-combo
-for meta_idx, (alpha_step, beta_noise) in tqdm(enumerate(meta_params)):
+for meta_idx, (spacing, pilot_alpha) in tqdm(enumerate(meta_params)):
     # Unwrap indices
-    alpha_idx, beta_idx = np.unravel_index(
-        meta_idx, (len(alpha_step_range), len(beta_noise_range)))
+    spacing_idx, pilot_alpha_idx = np.unravel_index(
+        meta_idx, (len(spacing_range), len(pilot_alpha_range)))
     
-    # Get a validation dataset and adjust parameters
+    # Get validation dataset
     val_config = copy.deepcopy(config)
-    val_config.data.channel      = args.channel
-    val_config.data.spacing_list = [args.spacing]
-    val_config.data.num_pilots   = int(np.floor(
-        config.data.image_size[1] * args.pilot_alpha))
+    val_config.data.channel      = args.test
+    val_config.data.spacing_list = [spacing]
+    val_config.data.num_pilots   = int(np.floor(config.data.image_size[1] * pilot_alpha))
     val_dataset = Channels(val_seed, val_config, norm=[dataset.mean, dataset.std])
-    val_loader  = DataLoader(val_dataset, batch_size=len(val_dataset),
+    val_loader  = DataLoader(val_dataset, batch_size=num_channels,
         shuffle=False, num_workers=0, drop_last=True)
     val_iter = iter(val_loader)
     print('There are %d validation channels' % len(val_dataset))
         
-    # Get all validation data explicitly
+    # Get all validation pilots and channels
     val_sample = next(val_iter)
-    _, val_P, _ = \
-        val_sample['H'].cuda(), val_sample['P'].cuda(), val_sample['Y'].cuda()
-    # Transposed pilots
+    val_P = val_sample['P'].cuda()
+    # Hermitian pilots
     val_P = torch.conj(torch.transpose(val_P, -1, -2))
     val_H_herm = val_sample['H_herm'].cuda()
     val_H = val_H_herm[:, 0] + 1j * val_H_herm[:, 1]
@@ -98,13 +116,18 @@ for meta_idx, (alpha_step, beta_noise) in tqdm(enumerate(meta_params)):
     
     # For each SNR value
     for snr_idx, local_noise in tqdm(enumerate(noise_range)):
+        # Get received pilots at correct SNR
+        # We directly sample unit power complex-valued tensors via torch.randn_like
+        # This is correct but partially undocumented as of PyTorch 2.1 - see https://github.com/pytorch/pytorch/issues/118269 for details
         val_Y     = torch.matmul(val_P, val_H)
         val_Y     = val_Y + \
-            np.sqrt(local_noise) * torch.randn_like(val_Y) 
+            np.sqrt(local_noise) * torch.randn_like(val_Y)
+        
         current   = init_val_H.clone()
         y         = val_Y
         forward   = val_P
         forward_h = torch.conj(torch.transpose(val_P, -1, -2))
+        norm      = [0., 1.]
         oracle    = val_H # Ground truth channels
         # Count every step
         trailing_idx = 0
@@ -142,48 +165,36 @@ for meta_idx, (alpha_step, beta_noise) in tqdm(enumerate(meta_params)):
                              (local_noise/2. + current_sigma ** 2)) + grad_noise
                         
                 # Store loss
-                nmse_log[alpha_idx, beta_idx, snr_idx, trailing_idx] = \
+                nmse_log[spacing_idx, pilot_alpha_idx, snr_idx, trailing_idx] = \
                     (torch.sum(torch.square(torch.abs(current - oracle)), dim=(-1, -2))/\
                     torch.sum(torch.square(torch.abs(oracle)), dim=(-1, -2))).cpu().numpy()
                 trailing_idx = trailing_idx + 1
 
-# Average estimation error and best stopping point
+# Use average estimation error to select best number of steps
 avg_nmse  = np.mean(nmse_log, axis=-1)
 best_nmse = np.min(avg_nmse, axis=-1)
 
-# Find best hyper-parameters for each SNR point
-best_alpha_snr, best_beta_snr = [], []
-for snr_idx in range(len(snr_range)):
-    local_nmse = best_nmse[..., snr_idx].flatten()
-    best_idx   = np.argmin(local_nmse)
-    best_alpha_idx, best_beta_idx = np.unravel_index(
-        best_idx, (len(alpha_step_range), len(beta_noise_range)))
-    best_alpha_snr.append(alpha_step_range[best_alpha_idx])
-    best_beta_snr.append(beta_noise_range[best_beta_idx])
-    
-# Plot all curves
+# Plot results for all alpha values
 plt.rcParams['font.size'] = 14
 plt.figure(figsize=(10, 10))
-for alpha_idx, local_alpha in enumerate(alpha_step_range):
-    for beta_idx, local_beta in enumerate(beta_noise_range):
-        plt.plot(snr_range, 10*np.log10(best_nmse[alpha_idx, beta_idx]),
-                 linewidth=4, label='Alpha=%.2e, Beta=%.2e' % (local_alpha, local_beta))
+for alpha_idx, local_alpha in enumerate(pilot_alpha_range):
+    plt.plot(snr_range, 10*np.log10(best_nmse[0, alpha_idx]),
+             linewidth=4, label='Alpha=%.2f' % local_alpha)
 plt.grid(); plt.legend()
-plt.title('Score-based hyperparameter search')
+plt.title('Score-based channel estimation')
 plt.xlabel('SNR [dB]'); plt.ylabel('NMSE [dB]')
 plt.tight_layout()
-plt.savefig(os.path.join(result_dir, '%s-hyperparameters.png' % args.channel), dpi=300, 
+plt.savefig(os.path.join(result_dir, 'results.png'), dpi=300, 
             bbox_inches='tight')
-plt.close()
-
-# Save full results to file
-torch.save({'nmse_log': nmse_log,
-            'avg_nmse': avg_nmse,
-            'best_nmse': best_nmse,
-            'best_alpha_snr': best_alpha_snr,
-            'best_beta_snr': best_beta_snr,
-            'snr_range': snr_range,
-            'alpha_step_range': alpha_step_range,
-            'beta_noise_range': beta_noise_range,
-            'config': config, 'args': args
-            }, os.path.join(result_dir, '%s-hyperparameters.pt' % args.channel))
+plt.close() 
+               
+# Save results to file based on noise
+save_dict = {'nmse_log': nmse_log,
+             'avg_nmse': avg_nmse,
+             'best_nmse': best_nmse,
+             'spacing_range': spacing_range,
+             'pilot_alpha_range': pilot_alpha_range,
+             'snr_range': snr_range,
+             'val_config': val_config,
+            }
+torch.save(save_dict, os.path.join(result_dir, 'results.pt'))

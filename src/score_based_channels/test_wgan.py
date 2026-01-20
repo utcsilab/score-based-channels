@@ -4,10 +4,10 @@ import torch, random, itertools
 import os, argparse, copy
 
 import numpy as np
-from loaders import Channels
+from .loaders import Channels
 from tqdm import tqdm
 
-import aux_gan as dcgan
+from . import aux_gan as dcgan
 from torch.utils.data import DataLoader
 
 # Args
