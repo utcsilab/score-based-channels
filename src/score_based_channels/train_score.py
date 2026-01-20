@@ -13,7 +13,7 @@ from ncsnv2.models.ncsnv2 import NCSNv2Deepest
 from ncsnv2.losses        import get_optimizer
 from ncsnv2.losses.dsm    import anneal_dsm_score_estimation
 
-from loaders          import Channels
+from .loaders          import Channels
 from torch.utils.data import DataLoader
 from dotmap           import DotMap
 
@@ -52,7 +52,7 @@ config.optim.eps           = 0.001
 
 # Training
 config.training.batch_size     = 32
-config.training.num_workers    = 4
+config.training.num_workers    = 4 if os.name == "posix" else 0
 config.training.n_epochs       = 400
 config.training.anneal_power   = 2
 config.training.log_all_sigmas = False

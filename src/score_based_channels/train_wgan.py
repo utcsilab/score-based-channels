@@ -11,9 +11,9 @@ from torch.autograd import Variable
 import os
 
 import numpy as np
-from loaders import Channels
+from .loaders import Channels
 
-import aux_gan as dcgan
+from . import aux_gan as dcgan
 from dotmap import DotMap
 
 # !!! Always !!! Otherwise major headache on RTX 3090 cards
@@ -22,8 +22,8 @@ torch.backends.cudnn.allow_tf32       = False
 torch.backends.cudnn.benchmark        = True
 
 # GPU
-os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID";
-os.environ["CUDA_VISIBLE_DEVICES"] = "3";
+os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # Seeding
 manualSeed = 2020 # fix seed
@@ -35,8 +35,9 @@ torch.manual_seed(manualSeed)
 config = DotMap()
 config.imageSize = [16, 64] # Shortest side
 config.nc        = 2
-config.data.spacing_list  = [0.1]
+config.data.spacing_list  = [0.5]
 config.data.norm_channels = 'entrywise'
+config.data.channel = "CDL-C"
 # Models
 config.nz        = 60
 config.ndf       = 64
@@ -59,7 +60,7 @@ config.data.num_pilots = config.data.image_size[1]
 config.data.noise_std  = 0.
 dataset    = Channels(train_seed, config, norm=config.data.norm_channels)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=config.batchSize,
-                                         shuffle=True, num_workers=2)
+                                         shuffle=True, num_workers=2 if os.name == "posix" else 0)
 # Extract stuff
 ngpu = 1 # Always
 nz   = int(config.nz)
@@ -142,7 +143,7 @@ for epoch in range(config.niter):
             for p in netD.parameters():
                 p.data.clamp_(config.clamp_lower, config.clamp_upper)
 
-            sample = data_iter.next()
+            sample = next(data_iter)
             i += 1
 
             # train with real
