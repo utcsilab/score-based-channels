@@ -5,21 +5,31 @@
 
 This repository contains source code for [MIMO Channel Estimation using Score-Based Generative Models](https://arxiv.org/abs/2204.07122), and contains code for training and testing a score-based generative model on channels from the Clustered Delay Line (CDL) family of models, as well as other algorithms.
 
-## Requirements
-Python 3.10, 3.11, and 3.12 with virtual environment support `sudo apt install python3.1X-venv`. Tested on Ubuntu 20.04 and 22.04. MATLAB license required to run MATLAB scripts.
-
 ## Getting Started
-After cloning the repository, run the following commands for Python 3.10 (similar for other versions of Python):
-- `cd score-based-channels`
-- `python3.10 -m venv .venv`
-- `source .venv/bin/activate`
-- `pip install -r requirements.txt`
+MATLAB license required to run MATLAB scripts.
 
-This will create a self-contained virtual environment in the base directory, activate it, and install all required packages.
+### Using `uv`
+We strongly recommend using `uv` for Python and dependency management. 
+This will also make the code runnable on Windows.
+
+Install `uv` using the official [instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+Run `uv sync` to install all dependencies in an isolated environment.
+
+### Using legacy `pip`
+This will only work on Ubuntu, and assumes system Python 3.11 is installed.
+
+After cloning the repository, run the following commands:
+```bash
+cd score-based-channels
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install .
+```
 
 ### Pre-generated Data
 Train and validation data for CDL-C channels can be directly downloaded from the command line using the following:
-```
+```bash
 mkdir data
 curl -L https://utexas.box.com/shared/static/nmyg5s06r6m2i5u0ykzlhm4vjiqr253m.mat --output ./data/CDL-C_Nt64_Nr16_ULA0.50_seed1234.mat
 curl -L https://utexas.box.com/shared/static/2a7tavjo9hk3wyhe9vv0j7s2l6en4mj7.mat --output ./data/CDL-C_Nt64_Nr16_ULA0.50_seed4321.mat
@@ -33,7 +43,7 @@ Once downloaded, place these files in the `data` folder under the main directory
 
 ### Pre-trained Models
 A pre-trained diffusion model for CDL-C channels can be directly downloaded from the command line using the following:
-```
+```bash
 mkdir -p models/score/CDL-C
 curl -L https://utexas.box.com/shared/static/4nubcpvpuv3gkzfk8dgjo6ay0ssps66w.pt --output ./models/score/CDL-C/final_model.pt
 ```
@@ -46,17 +56,27 @@ Once downloaded, places these files in their matching directory structure as `fi
 
 ## Training Diffusion Models on MIMO Channels
 After downloading the example CDL-C data, a diffusion model can be trained by running:
+```bash
+uv run -m score_based_channels.train_score
 ```
-python train_score.py
+if using `uv` (strongly recommended), or
+```bash
+python -m score_based_channels.train_score
 ```
+if not using `uv`.
 
 The model is trained for 400 epochs by default, and the last model weights will be automatically saved in the `model` folder under the appropriate structure. To train on other channel distributions, see the `--train` argument.
 
 ## Channel Estimation with Diffusion Models
 To run channel estimation with the CDL-C data and the pretrained model run:
+```bash
+uv run -m score_based_channels.test_score
 ```
-python test_score.py
-````
+if using `uv` (strongly recommended), or
+```bash
+python -m score_based_channels.test_score
+```
+if not using `uv`.
 
 This will run channel estimation in the setting of Figure 5c of the paper, and will reproduce the `Score-based (CDL-C)` curve:
 
@@ -66,9 +86,14 @@ Running the above command will automatically plot and save results in the `resul
 
 ## Hyper-parameter Tuning
 Tuning the inference hyper-parameters `alpha` (the step size in Annealed Langevin Dynamics), `beta` (a multiplier for the noise added in each step of Annealed Langevin Dynamics), and `N` (the number of inference steps in Annealed Langevin Dynamics) can be done for the CDL-C pretrained model by running:
+```bash
+uv run -m score_based_channels.tune_hparams_score
 ```
-python tune_hparams_score.py
+if using `uv` (strongly recommended), or
+```bash
+python -m score_based_channels.tune_hparams_score
 ```
+if not using `uv`.
 
 This will perform a grid search for the best values of `alpha`, `beta`, and `N` and will save the results in the `results/score` folder. To modify the searched values and the model that is being tuned, see the `alpha_step_range`, `beta_noise_range`, and `channel` arguments respectively.
 
